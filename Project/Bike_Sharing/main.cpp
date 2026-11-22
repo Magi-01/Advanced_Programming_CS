@@ -11,29 +11,11 @@ int main() {
         "timestamp", "count", "hour_sin", "hour_cos", "dow_sin", "dow_cos",
         "is_weekend", "day_index", "is_february", "is_holiday"
     };
+
     CSVData data = read_csv("citibike_hourly_2026_01_02.csv", expected);
 
-    std::cout << "\nHeaders: ";
-    for (const auto& header : data.headers) {
-        std::cout << header << " ";
-    }
-    std::cout << std::endl;
-    std::cout << "\nFirst row: ";
-    if (data.rows() > 0) {
-        std::cout << 1900 + data.timestamp[0].tm_year << "-" << 1 + data.timestamp[0].tm_mon << "-" << data.timestamp[0].tm_mday << " "
-                  << data.count[0] << " "
-                  << data.hour_sin[0] << " "
-                  << data.hour_cos[0] << " "
-                  << data.day_sin[0] << " "
-                  << data.day_cos[0] << " "
-                  << static_cast<int>(data.is_weekend[0]) << " "
-                  << data.day_index[0] << " "
-                  << static_cast<int>(data.is_february[0]) << " "
-                  << static_cast<int>(data.is_holiday[0])  << "\n" 
-                  << std::endl;
-    } else {
-        std::cout << "No data available." << std::endl;
-    }
+    print_header(data.headers); // Print the headers of the CSV data
+    print_row(data, 5); // Print the first 5 rows of the CSV data
 
     auto hour_res = validate_hour_cos_sin(data.hour_sin, data.hour_cos);
     auto day_res  = validate_day_cos_sin(data.day_sin, data.day_cos, data.day_index);
@@ -43,6 +25,7 @@ int main() {
     
     constexpr size_t TRAIN_N = 1080, VAL_N = 168;
 
+    // Split the data into training, validation, and test sets
     CSVData training_data   = slice(data, 0,                 TRAIN_N);
     CSVData validation_data = slice(data, TRAIN_N,           TRAIN_N + VAL_N);
     CSVData test_data       = slice(data, TRAIN_N + VAL_N,   data.rows());
@@ -65,7 +48,6 @@ int main() {
                 << ", last timestamp: "
                 << test_data.timestamp.back().tm_year + 1900 << "-" << test_data.timestamp.back().tm_mon + 1 << "-" << test_data.timestamp.back().tm_mday
                 << std::endl;
-
 
     return 0;
 }

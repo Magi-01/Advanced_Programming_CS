@@ -2,6 +2,7 @@
 #include <ctime>
 #include "structs.hpp"
 #include <cmath>
+#include "utils.hpp"
 
 constexpr double PI = 3.14159265358979323846;
 constexpr size_t N_ROWS = 1416;
@@ -32,11 +33,8 @@ ValidationError validate_hour_cos_sin(const std::vector<double>& hour_sin,
         return ValidationError::fail("Invalid vector sizes", 0);
 
     for (size_t r = 0; r < N_ROWS; ++r) {
-        const unsigned int h = static_cast<unsigned int>(r % 24);   // hour of day
 
-        const double angle   = 2.0 * PI * h / 24.0;
-        const double exp_sin = std::sin(angle);
-        const double exp_cos = std::cos(angle);
+        const auto [exp_sin, exp_cos] = hour_to_cyclic(r);
 
         if (std::abs(hour_sin[r] - exp_sin) > 1e-9 ||
             std::abs(hour_cos[r] - exp_cos) > 1e-9) {
@@ -54,12 +52,8 @@ ValidationError validate_day_cos_sin(const std::vector<double>& day_sin, const s
         return ValidationError::fail("Invalid vector sizes", 0);
 
     for (size_t r = 0; r < N_ROWS; ++r) {
-        // day_index is the day of week (0..6)
-        const unsigned int dow = (day_index[r] + 3) % 7;
 
-        const double angle = 2.0 * PI * dow / 7.0;
-        const double exp_sin = std::sin(angle);
-        const double exp_cos = std::cos(angle);
+        const auto [exp_sin, exp_cos] = day_to_cyclic(day_index, r);
 
         if (std::abs(day_sin[r] - exp_sin) > 1e-9 || std::abs(day_cos[r] - exp_cos) > 1e-9) {
             std::ostringstream os;

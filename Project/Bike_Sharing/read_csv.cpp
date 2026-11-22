@@ -7,6 +7,7 @@
 #include "structs.hpp"
 #include <cstdint>
 
+// This function splits a string into a vector of strings using the specified delimiter (default is comma).
 static std::vector<std::string> split(const std::string& line, char delim = ',') {
     std::vector<std::string> fields;
     std::stringstream ss(line);
@@ -27,9 +28,11 @@ CSVData read_csv(const std::string& filename, const std::vector<std::string>& ex
     std::string line;
     // Read the header line
     if (!std::getline(file, line)) return data;
+    // Remove any trailing carriage return character from the line (for Windows compatibility)
     if (!line.empty() && line.back() == '\r') line.pop_back();
     data.headers = split(line);
 
+    // Check if the headers match the expected headers
     if (data.headers != expected_headers) {
         std::cerr << "Header mismatch.\nExpected:";
         for (const auto& e : expected_headers) std::cerr << ' ' << e;
@@ -40,15 +43,18 @@ CSVData read_csv(const std::string& filename, const std::vector<std::string>& ex
         throw mis;
     }
 
-    constexpr size_t NCOLS = 10;
-    size_t line_no = 1;
+    constexpr size_t NCOLS = 10; // Number of expected columns in the CSV file
+    size_t line_no = 1; // Initialize line number to 1 (header line)
 
+    // Read each line of the CSV file and parse the data into the CSVData struct
     while (std::getline(file, line)) {
         ++line_no;
         if (!line.empty() && line.back() == '\r') line.pop_back();
         if (line.empty()) continue;
 
+        // Split the line into fields using the split function
         auto f = split(line);
+        // Check if the number of fields matches the expected number of columns
         if (f.size() != NCOLS) {
             std::cerr << "Line " << line_no << ": expected " << NCOLS
                       << " fields, got " << f.size() << ", skipping\n";
@@ -108,27 +114,3 @@ CSVData read_csv(const std::string& filename, const std::vector<std::string>& ex
     file.close(); // file close
     return data;
 }
-
-CSVData slice(const CSVData& d, size_t begin, size_t end) {
-        if (begin > end || end > d.rows())
-            throw std::out_of_range("slice: invalid range");
-
-        CSVData out;
-        out.headers = d.headers;
-
-        auto cut = [&](auto& dst, const auto& src) {
-            dst.assign(src.begin() + begin, src.begin() + end);
-        };
-
-        cut(out.timestamp,   d.timestamp);
-        cut(out.count,       d.count);
-        cut(out.day_index,   d.day_index);
-        cut(out.hour_sin,    d.hour_sin);
-        cut(out.hour_cos,    d.hour_cos);
-        cut(out.day_sin,     d.day_sin);
-        cut(out.day_cos,     d.day_cos);
-        cut(out.is_weekend,  d.is_weekend);
-        cut(out.is_february, d.is_february);
-        cut(out.is_holiday,  d.is_holiday);
-        return out;
-    };
