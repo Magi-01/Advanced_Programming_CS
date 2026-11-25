@@ -4,10 +4,12 @@
 #include <ctime>
 #include "structs.hpp"
 // Validate timestamps to ensure they are in the expected format and range.
-bool validate_timestamps(const std::vector<std::tm>& ts);
+ValidationError validate_timestamps(const std::vector<std::tm>& ts);
 // Validate hour sine and cosine values to ensure they are in the expected range.
 ValidationError validate_hour_cos_sin(const std::vector<double>& hour_sin, const std::vector<double>& hour_cos);
 // Validate day sine and cosine values to ensure they are in the expected range.
 ValidationError validate_day_cos_sin(const std::vector<double>& day_sin, const std::vector<double>& day_cos, const std::vector<unsigned int>& day_index);
-
+//
+ValidationError validate_calendar_features(const std::vector<unsigned int>& day_index, const std::vector<uint8_t>& is_weekend,
+                                            const std::vector<uint8_t>& is_february, const std::vector<uint8_t>&is_holiday);
 #endif // VALIDATION_HPP

@@ -6,6 +6,7 @@
 #include <ctime>
 #include "structs.hpp"
 #include <cstdint>
+#include "constants.hpp"
 
 // This function splits a string into a vector of strings using the specified delimiter (default is comma).
 static std::vector<std::string> split(const std::string& line, char delim = ',') {
@@ -27,7 +28,8 @@ CSVData read_csv(const std::string& filename, const std::vector<std::string>& ex
 
     std::string line;
     // Read the header line
-    if (!std::getline(file, line)) return data;
+    if (!std::getline(file, line)) 
+        throw ValidationError::fail("File is empty: " + filename, 0);;
     // Remove any trailing carriage return character from the line (for Windows compatibility)
     if (!line.empty() && line.back() == '\r') line.pop_back();
     data.headers = split(line);
@@ -97,20 +99,19 @@ CSVData read_csv(const std::string& filename, const std::vector<std::string>& ex
         }
     }
 
-    if (data.rows() < 1416) {
-        ValidationError not_enough_data = ValidationError::fail("Not enough data read from file", line_no);
-        throw not_enough_data;
+    if (data.rows() != N_ROWS) {
+        throw ValidationError::fail(
+            "Expected " + std::to_string(N_ROWS) + " rows, got " + std::to_string(data.rows()),
+            line_no);
     } else {
         std::cout << "Successfully read " << data.rows() << " rows from file: " << filename << std::endl;
     }
 
     if (!file.eof()) {
-        ValidationError fileread_error = ValidationError::fail("Error reading file", line_no);
-        throw fileread_error;
+        throw ValidationError::fail("Error reading file, got no end of file on line: ", line_no);
     } else {
         std::cout << "Finished reading file: " << filename << std::endl;
     }
 
-    file.close(); // file close
     return data;
 }

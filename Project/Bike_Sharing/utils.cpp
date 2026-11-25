@@ -1,10 +1,10 @@
+#include "utils.hpp"
 #include <iostream>
 #include <cmath>
 #include <vector>
 #include <ctime>
 #include "structs.hpp"
-
-constexpr double PI = 3.14159265358979323846; // Define a constant for pi
+#include "constants.hpp"
 
 CSVData slice(const CSVData& d, size_t begin, size_t end) {
         if (begin > end || end > d.rows())
@@ -30,17 +30,18 @@ CSVData slice(const CSVData& d, size_t begin, size_t end) {
         return out;
 };
 
-std::pair<double, double> hour_to_cyclic(size_t r) {
-    // Convert hours to seconds
-    const unsigned int h = static_cast<unsigned int>(r % 24);
-    const double angle =  2 * PI * h / 24; // Calculate angle in radians for the hour
-    return {std::sin(angle), std::cos(angle)}; // Return the sine and cosine values for the hour
+std::pair<double, double> hour_to_cyclic(unsigned int hour) {
+    const double angle = 2.0 * PI * hour / 24.0;
+    return {std::sin(angle), std::cos(angle)};
 }
 
-std::pair<double, double> day_to_cyclic(const std::vector<unsigned int>& day_index_vector, size_t r) {
-    const unsigned int dow = (day_index_vector[r] + 3) % 7;
-    const double angle = 2.0 * PI * dow / 7.0; // Calculate angle in radians for the day of the week
-    return {std::sin(angle), std::cos(angle)}; // Return the sine and cosine values for the day of the week
+std::pair<double, double> day_to_cyclic(unsigned int dow) {
+    const double angle = 2.0 * PI * dow / 7.0;
+    return {std::sin(angle), std::cos(angle)};
+}
+
+unsigned int day_of_week(size_t day_index) {
+    return static_cast<unsigned int>((day_index + 3) % 7);
 }
 
 void print_header(const std::vector<std::string>& headers) {
@@ -51,7 +52,7 @@ void print_header(const std::vector<std::string>& headers) {
     std::cout << std::endl;
 }
 
-void print_row(const CSVData& data, size_t n_rows=5) {
+void print_row(const CSVData& data, size_t n_rows) {
     if (data.rows() > 0) {
     std::cout << "\nFirst " << n_rows << " rows: " << std::endl;
     for (size_t i = 0; i < std::min(n_rows, data.rows()); ++i) {

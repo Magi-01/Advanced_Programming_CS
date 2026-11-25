@@ -5,10 +5,12 @@
 #include "structs.hpp"
 // This function slices a CSVData struct and returns a new CSVData struct containing the specified range of rows.
 CSVData slice(const CSVData& d, size_t begin, size_t end);
-// Conversion functions for hour to unit (seconds) using sine and cosine transformations.
-std::pair<double, double> hour_to_cyclic(size_t r);
-// Conversion functions for day to unit (seconds) using sine and cosine transformations.
-std::pair<double, double> day_to_cyclic(const std::vector<unsigned int>& day_index_vector, size_t r);
+// Maps an hour of day (0..23) to (sin, cos) of 2*pi*hour/24.
+std::pair<double, double> hour_to_cyclic(unsigned int hour);
+// Maps a day of week (0..6, Monday = 0) to (sin, cos) of 2*pi*dow/7.
+std::pair<double, double> day_to_cyclic(unsigned int dow);
+// Day of week (Monday = 0) for a day index counted from 2026-01-01, which is a Thursday.
+unsigned int day_of_week(size_t day_index);
 // Utility function to print the headers of the CSV data.
 void print_header(const std::vector<std::string>& headers);
 // Utility function to print n rows (default 5) of the CSV data.
